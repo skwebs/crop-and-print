@@ -1,9 +1,12 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-  <title></title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Crop and Create Image for print</title>
   <link rel="stylesheet" href="vendors/cropper/1.6.0/cropper.min.css" />
+  <link rel="shortcut icon" href="favicon.png" type="image/x-icon">
   <style type="text/css">
     * {
       margin: 0;
@@ -16,6 +19,7 @@
       height: 100vh;
       display: flex;
       flex-direction: column;
+      background-color: azure;
     }
 
     header,
@@ -39,7 +43,13 @@
     #wrapper {
       width: 300px;
       height: 375px;
-      display: block;
+      display: none;
+    }
+
+    canvas {
+      width: 100%;
+      background-color: white;
+      box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.1);
     }
   </style>
 </head>
@@ -48,15 +58,46 @@
 
   <header>
     <input type="file" name="imageInput" id="imageInput" accept="image/*">
-
     <button id="cropButton" disabled>Crop Image</button>
 
+    <div id="canvas-tool-group">
+      <select name="colsSelect" id="colsSelect" disabled>
+        <option value="">Select col</option>
+        <option value="1">One Col</option>
+        <option value="2">Two Cols</option>
+        <option value="3">Three Cols</option>
+        <option value="4">Four Cols</option>
+        <option value="5">Five Cols</option>
+        <option selected value="6">Six Cols</option>
+        <option value="7">Seven Cols</option>
+        <option value="8">Eight Cols</option>
+      </select>
+
+      <select name="rowsSelect" id="rowsSelect" disabled>
+        <option value="">Select Row</option>
+        <option selected value="1">One Row</option>
+        <option value="2">Two Rows</option>
+        <option value="3">Three Rows</option>
+        <option value="4">Four Rows</option>
+        <option value="5">Five Rows</option>
+        <option value="6">Six Rows</option>
+        <option value="7">Seven Rows</option>
+        <option value="8">Eight Rows</option>
+      </select>
+      <!-- <input type="color" id="backgroundColorSelect"> -->
+      <input type="color" id="backgroundColorInput" disabled>
+
+      <button id="downloadImageButton" disabled>Download Image</button>
+    </div>
   </header>
 
   <main>
-    <label for="imageInput" id="wrapper">
+    <div id="wrapper">
       <img id="imageForCrop" src="select_image.png">
-    </label>
+    </div>
+    <br>
+
+    <canvas id="outputCanvas">Your browser doesn't support.</canvas>
   </main>
 
 
@@ -72,17 +113,45 @@
     "use strict";
     const _ = e => document.querySelector(e);
     const cropButton = _('#cropButton');
+    const imageForCrop = _("#imageForCrop");
 
     let originalImageMimeType = null;
     let isImageLoaded = false;
     let cropper = null;
 
-    let targetImageWidth = 300;
+    let targetImageWidth = 360;
     let targetImageHeight = 450;
 
+    let backgroundColor = '#008080'; // Default background color (white)
+
+    const paperSize = {
+      A4: { width: 2480, height: 3505 },
+      _4x6: { width: 1200, height: 1800 },
+      _5x7: { width: 1500, height: 2100 },
+    }
+    // set internally
+    const gap = 50; // Adjust gap as needed
+    const margin = gap / 2;
+
+    // Handle image input change event
     _('#imageInput').addEventListener('change', handleImage);
+    // Handle background color input change event
+    _('#backgroundColorInput').addEventListener('input', setBackgroundColor);
+    // Handle rows select change event
+    _('#rowsSelect').addEventListener('change', updateGrid);
+    // Handle columns select change event
+    _('#colsSelect').addEventListener('change', updateGrid);
+    // Handle download button click
+    const downloadImageButton = _('#downloadImageButton');
+
+    downloadImageButton.addEventListener('click', downloadCanvas);
+
+    // get from user
+    let numRows = parseInt(_('#rowsSelect').value, 10) || 1; // Default number of rows
+    let numCols = parseInt(_('#colsSelect').value, 10) || 6; // Default number of columns
+
     cropButton.addEventListener('click', cropImage);
-    const imageForCrop = _("#imageForCrop");
+
 
     // detect upload image
     function handleImage(event) {
@@ -94,6 +163,8 @@
           isImageLoaded = true;
           console.log("image loaded")
           initCropper();
+          _("#wrapper").style.display = "block";
+
           // enable cropButton
           cropButton.disabled = false;
         };
@@ -142,11 +213,85 @@
         croppedCanvas.toBlob(function (blob) {
 
           const croppedImageUrl = URL.createObjectURL(blob);
+          // enable tools
+          diableTools(false);
+          drawImageGrid();
+
           console.log(croppedImageUrl)
         }, originalImageMimeType, 1);
       }
     }
 
+    function diableTools(status) {
+      document.querySelectorAll("#canvas-tool-group>*").forEach(el => el.disabled = status);
+    }
+
+    // canvas grid
+    const canvas = _('#outputCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = paperSize.A4.width; // Adjust canvas size as needed
+    canvas.height = paperSize.A4.height;
+    canvas.style.backgroundColor = "#FFFFFF";
+
+    let canvasImageBlob = null;
+
+    function drawImageGrid() {
+      if (isImageLoaded) {
+        canvas.backgroundColor = "white";
+        for (let row = 0; row < numRows; row++) {
+          for (let col = 0; col < numCols; col++) {
+            const x = col * (targetImageWidth + gap) + margin; // Adjusted x position
+            const y = row * (targetImageHeight + gap) + margin; // Adjusted y position
+
+            // for maintain original image ratio
+            // const y = row * (img.height / img.width * targetImageWidth + gap) + margin; // Adjusted y position
+
+            ctx.fillStyle = backgroundColor;
+            ctx.fillRect(x, y, targetImageWidth, targetImageHeight);
+
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 5;
+
+            ctx.drawImage(imageForCrop, x, y, targetImageWidth, targetImageHeight);
+
+            ctx.strokeRect(x, y, targetImageWidth, targetImageHeight); // Stroke around the image
+
+          }
+        }
+      }
+
+      // Store canvas image as Blob
+      canvas.toBlob(function (blob) {
+        canvasImageBlob = blob;
+      }, originalImageMimeType); // Pass original image MIME type
+    }
+
+    function setBackgroundColor(event) {
+      backgroundColor = event.target.value;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawImageGrid();
+    }
+
+    function updateGrid() {
+      numRows = parseInt(_('#rowsSelect').value, 10);
+      numCols = parseInt(_('#colsSelect').value, 10);
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawImageGrid();
+    }
+
+
+    function downloadCanvas() {
+      if (canvasImageBlob) {
+        const timestamp = new Date().getTime();
+        const fileName = `canvas_image_${timestamp}.png`;
+        const link = document.createElement('a');
+        link.download = fileName;
+        link.href = URL.createObjectURL(canvasImageBlob);
+        link.click();
+      }
+    }
+
+    setBackgroundColor({ target: { value: backgroundColor } });
 
   </script>
 
