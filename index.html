@@ -44,6 +44,7 @@
       width: 360px;
       height: 450px;
       display: none;
+      visibility: hidden;
     }
 
     #outputCanvas {
@@ -172,21 +173,24 @@
           isImageLoaded = true;
           // console.log("image loaded");
           initCropper();
-          cropImageWrapper.style.display = "block";
+          // cropImageWrapper.style.display = "block";
           enableCropDisableCanvasTools(true);
+          // console.log("imageForCrop.onload")
         };
         imageForCrop.src = URL.createObjectURL(file);
       }
     }
+
+    imageForCrop.addEventListener("ready", function () {
+      cropImageWrapper.style.visibility = "visible";
+      // console.log("imageForCrop is ready")
+    })
 
     // initialisation of cropper
     function initCropper() {
       if (cropper) {
         destroyCrooper();
       }
-
-      outputCanvas.style.display = "none";
-      reCropButton.disabled = true;
 
       cropper = new Cropper(imageForCrop, {
         viewMode: 3,
