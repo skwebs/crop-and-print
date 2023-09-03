@@ -85,7 +85,8 @@
     <input type="file" name="imageInput" id="imageInput" accept="image/*" />
     <button id="cropButton" disabled>Crop Image</button>
     <button id="reCropButton" disabled>Re-Crop Image</button>
-    <button title="Flip Horizontally" id="flipHorizontallyButton" style="padding-left: 10px; padding-right: 10px;">
+    <button title="Flip Horizontally" id="flipHorizontallyButton" style="padding-left: 10px; padding-right: 10px;"
+      disabled>
       <svg xmlns="http://www.w3.org/2000/svg" style="width: 24px;"
         viewBox="0 0 512 512"><!--! Font Awesome Pro 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
         <path
@@ -146,7 +147,7 @@
 
       <div>
         <label style="border: thin solid gray; padding: 2px;" for="isLandscape"><input type="checkbox"
-            name="isLandscape" id="isLandscape">&nbsp;Landscape</label>
+            name="isLandscape" id="isLandscape" disabled>&nbsp;Landscape</label>
 
         <span id="rotateDegree">Rotate: 0</span>
       </div>
@@ -206,7 +207,8 @@
     });
 
     let scaleValue = 1;
-    _("#flipHorizontallyButton").addEventListener("click", function () {
+    const flipHorizontallyButton = _("#flipHorizontallyButton");
+    flipHorizontallyButton.addEventListener("click", function () {
       scaleValue = scaleValue !== 1 ? 1 : -1;
 
       if (cropper) {
@@ -286,6 +288,8 @@
         .querySelectorAll("#canvasToolGroup>*")
         .forEach((el) => (el.disabled = statusTrue));
       cropButton.disabled = !statusTrue;
+      flipHorizontallyButton.disabled = !statusTrue
+      isLandscape.disabled = statusTrue
       reCropButton.disabled = statusTrue;
       cropImageWrapper.style.display = statusTrue ? "block" : "none";
       outputCanvas.style.display = statusTrue ? "none" : "block";
