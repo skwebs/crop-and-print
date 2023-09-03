@@ -5,6 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Crop and Create Image for print</title>
+  <!-- <link rel="stylesheet" href="vendors/bootstrap/5.3.1/bootstrap.min.css"> -->
   <link rel="stylesheet" href="vendors/cropper/1.6.0/cropper.min.css" />
   <link rel="shortcut icon" href="favicon.png" type="image/x-icon" />
   <style type="text/css">
@@ -20,6 +21,7 @@
       display: flex;
       flex-direction: column;
       background-color: azure;
+      position: relative;
     }
 
     header,
@@ -47,12 +49,39 @@
       visibility: hidden;
     }
 
+    #imageRotateSlider {
+      min-width: 360px;
+    }
+
+    datalist {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      writing-mode: vertical-lr;
+      min-width: 360px;
+    }
+
+
     #outputCanvas {
       width: 100%;
       max-width: 830px;
       background-color: white;
       box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.1);
       display: none;
+    }
+
+    input,
+    button {
+      margin-top: 10px;
+
+    }
+
+    input[type="range"] {
+      /* -webkit-appearance: none; */
+      /* appearance: none; */
+      /* background: transparent; */
+      cursor: pointer;
+      /* width: 15rem; */
     }
   </style>
 </head>
@@ -90,6 +119,22 @@
       <!-- <input type="color" id="backgroundColorSelect"> -->
       <input type="color" id="backgroundColorInput" disabled />
 
+      &nbsp;<span id="rotateDegree">0</span>Degree
+
+      <div>
+        <input type="range" name="imageRotateSlider" id="imageRotateSlider" min="-45" max="45" value="0" step="0.001"
+          disabled>
+        <datalist id="values">
+          <option value="-90" label="-90"></option>
+          <option value="-60" label="-60"></option>
+          <option value="-30" label="-30"></option>
+          <option value="0" label="0"></option>
+          <option value="30" label="30"></option>
+          <option value="60" label="60"></option>
+          <option value="90" label="90"></option>
+        </datalist>
+      </div>
+
       <button id="downloadImageButton" disabled>Download Image</button>
     </div>
   </header>
@@ -119,6 +164,7 @@
     const reCropButton = _("#reCropButton");
     const cropImageWrapper = _("#cropImageWrapper");
     const outputCanvas = _("#outputCanvas");
+    const imageRotateSlider = _("#imageRotateSlider");
 
     let originalImageMimeType = null;
     let isImageLoaded = false;
@@ -148,10 +194,19 @@
     rowsSelect.addEventListener("change", updateGrid);
     // Handle columns select change event
     colsSelect.addEventListener("change", updateGrid);
-    reCropButton.addEventListener("click", function () {
 
+    reCropButton.addEventListener("click", function () {
       enableCropDisableCanvasTools(true);
     });
+
+    imageRotateSlider.addEventListener("input", function (e) {
+      if (cropper) {
+        const rotateAngle = e.target.value;
+        cropper.rotateTo(rotateAngle);
+        _("#rotateDegree").innerText = rotateAngle;
+      }
+    });
+
     // Handle download button click
     const downloadImageButton = _("#downloadImageButton");
 
@@ -181,11 +236,6 @@
       }
     }
 
-    imageForCrop.addEventListener("ready", function () {
-      cropImageWrapper.style.visibility = "visible";
-      // console.log("imageForCrop is ready")
-    })
-
     // initialisation of cropper
     function initCropper() {
       if (cropper) {
@@ -195,7 +245,7 @@
       cropper = new Cropper(imageForCrop, {
         viewMode: 3,
         dragMode: "move",
-        aspectRatio: 20 / 25,
+        aspectRatio: 4 / 5,
         autoCropArea: 1,
         restore: !1,
         modal: !1,
@@ -203,6 +253,12 @@
         cropBoxMovable: !1,
         cropBoxResizable: !1,
         toggleDragModeOnDblclick: !1,
+        ready() {
+          cropImageWrapper.style.visibility = "visible";
+        },
+        crop(event) {
+          console.log(event.detail.rotate);
+        },
       });
     }
 
@@ -234,6 +290,7 @@
       reCropButton.disabled = statusTrue;
       cropImageWrapper.style.display = statusTrue ? "block" : "none";
       outputCanvas.style.display = statusTrue ? "none" : "block";
+      imageRotateSlider.disabled = !statusTrue;
     }
 
     // outputCanvas grid
@@ -305,6 +362,10 @@
 
     setBackgroundColor({ target: { value: backgroundColor } });
 
+
+    _("#imageRotateSlider").addEventListener("input", (event) => {
+      console.log(event.target.value)
+    });
   </script>
 </body>
 
