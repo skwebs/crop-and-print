@@ -97,12 +97,18 @@
     <div id="cropImageWrapper">
       <img id="imageForCrop" src="select_picture.png" />
     </div>
+    <div style="width: 200px;">
+      <img id="croppedImagePreview" src="select_picture.png" />
+    </div>
+
     <br />
 
     <canvas id="outputCanvas">Your browser doesn't support.</canvas>
   </main>
 
-  <footer>&copy; Copyright</footer>
+  <footer>&copy; Copyright <a href="http://skwebs.github.io">SK Webs</a>
+    <script>document.write(new Date().getFullYear())</script>
+  </footer>
 
   <script src="vendors/cropper/1.6.0/cropper.min.js"></script>
   <script type="text/javascript">
@@ -119,6 +125,8 @@
     let originalImageMimeType = null;
     let isImageLoaded = false;
     let cropper = null;
+    let croppedImageUrl = null;
+    let croppedCanvas = null;
 
     let targetImageWidth = 360;
     let targetImageHeight = 450;
@@ -170,16 +178,11 @@
           // console.log("image loaded");
           initCropper();
           cropImageWrapper.style.display = "block";
-
           // enable cropButton
           cropButton.disabled = false;
         };
         imageForCrop.src = URL.createObjectURL(file);
       }
-
-      let files = event.target.files;
-      // console.log(event);
-      // console.log(files);
     }
 
     // initialisation of cropper
@@ -209,13 +212,12 @@
 
     function cropImage() {
       if (cropper) {
-        const croppedCanvas = cropper.getCroppedCanvas({
+        croppedCanvas = cropper.getCroppedCanvas({
           width: targetImageWidth,
           height: targetImageHeight,
         });
 
-        croppedCanvas.toBlob(function (blob) {
-          const croppedImageUrl = URL.createObjectURL(blob);
+        if (croppedCanvas !== null) {
           // enable tools
           diableTools(false);
           drawImageGrid();
@@ -223,8 +225,7 @@
           cropButton.disabled = true;
           cropImageWrapper.style.display = "none";
           outputCanvas.style.display = "block";
-          // console.log(croppedImageUrl);
-        }, originalImageMimeType, 1);
+        }
       }
     }
 
@@ -263,7 +264,7 @@
             ctx.lineWidth = 5;
 
             ctx.drawImage(
-              imageForCrop, x, y, targetImageWidth, targetImageHeight
+              croppedCanvas, x, y, targetImageWidth, targetImageHeight
             );
 
             ctx.strokeRect(x, y, targetImageWidth, targetImageHeight); // Stroke around the image
