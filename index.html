@@ -81,10 +81,32 @@
 
 <body>
   <header>
+    <!-- crop image -->
     <input type="file" name="imageInput" id="imageInput" accept="image/*" />
     <button id="cropButton" disabled>Crop Image</button>
     <button id="reCropButton" disabled>Re-Crop Image</button>
-
+    <button title="Flip Horizontally" id="flipHorizontallyButton" style="padding-left: 10px; padding-right: 10px;">
+      <svg xmlns="http://www.w3.org/2000/svg" style="width: 24px;"
+        viewBox="0 0 512 512"><!--! Font Awesome Pro 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
+        <path
+          d="M406.6 374.6l96-96c12.5-12.5 12.5-32.8 0-45.3l-96-96c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224l-293.5 0 41.4-41.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-96 96c-12.5 12.5-12.5 32.8 0 45.3l96 96c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 288l293.5 0-41.4 41.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0z" />
+      </svg>
+    </button>
+    <!-- slider -->
+    <div>
+      <input type="range" name="imageRotateSlider" id="imageRotateSlider" min="-45" max="45" value="0" step="0.001"
+        disabled>
+      <datalist id="values">
+        <option value="-45" label="-45"></option>
+        <option value="-30" label="-30"></option>
+        <option value="-15" label="-15"></option>
+        <option value="0" label="0"></option>
+        <option value="15" label="15"></option>
+        <option value="30" label="30"></option>
+        <option value="45" label="45"></option>
+      </datalist>
+    </div>
+    <!-- canvas grid -->
     <div id="canvasToolGroup">
       <select name="colsSelect" id="colsSelect" disabled>
         <option value="">Select col</option>
@@ -123,25 +145,10 @@
       </select>
 
       <div>
-        <label for="isLandscape"><input type="checkbox" name="isLandscape" id="isLandscape">Landscape</label>
+        <label style="border: thin solid gray; padding: 2px;" for="isLandscape"><input type="checkbox"
+            name="isLandscape" id="isLandscape">&nbsp;Landscape</label>
 
         <span id="rotateDegree">Rotate: 0</span>
-      </div>
-
-      <div></div>
-
-      <div>
-        <input type="range" name="imageRotateSlider" id="imageRotateSlider" min="-45" max="45" value="0" step="0.001"
-          disabled>
-        <datalist id="values">
-          <option value="-45" label="-45"></option>
-          <option value="-30" label="-30"></option>
-          <option value="-15" label="-15"></option>
-          <option value="0" label="0"></option>
-          <option value="15" label="15"></option>
-          <option value="30" label="30"></option>
-          <option value="45" label="45"></option>
-        </datalist>
       </div>
 
       <button id="downloadImageButton" disabled>Download Image</button>
@@ -198,7 +205,15 @@
       }
     });
 
+    let scaleValue = 1;
+    _("#flipHorizontallyButton").addEventListener("click", function () {
+      scaleValue = scaleValue !== 1 ? 1 : -1;
 
+      if (cropper) {
+        cropper.scaleX(scaleValue)
+        // console.log("cropper")
+      }
+    })
 
     cropButton.addEventListener("click", cropImage);
 
@@ -241,7 +256,7 @@
           cropImageWrapper.style.visibility = "visible";
         },
         crop(event) {
-          console.log(event.detail.rotate);
+          // console.log(event.detail.rotate);
         },
       });
     }
@@ -306,18 +321,10 @@
 
     let outputCanvasImageBlob = null;
 
-    // set internally
-    const gap = 50; // Adjust gap as needed
-    const margin = gap / 2;
+
     const photoResolution = 300;
     const screenResolution = 96;
     const scaleFactor = photoResolution / 96;
-    let photoAspectRatio = 4 / 5;
-    const photoWidthInInch = 1.2;
-    const screenPhotoWidth = screenResolution * photoWidthInInch;
-    const screenPhotoHeight = photoResolution * photoWidthInInch * photoAspectRatio;
-    const targetPhotoWidth = screenResolution * photoWidthInInch;
-    const targetPhotoHeight = photoResolution * photoWidthInInch * photoAspectRatio;
 
     const paperSizes = {
       A4: { width: 2480, height: 3505 },
@@ -328,7 +335,7 @@
 
     function changePaperSize(e) {
       paperSize = paperSizes[paperSelect.value];
-      console.log(paperSize);
+      // console.log(paperSize);
       changeCanvasOrientation();
       drawImageGrid();
     }
@@ -340,15 +347,19 @@
     outputCanvas.style.maxWidth = `${paperSize.width / scaleFactor}px`;
 
     function changeCanvasOrientation(e) {
-      console.log(scaleFactor);
-      console.log(paperSize.height / scaleFactor);
+      // console.log(scaleFactor);
+      // console.log(paperSize.height / scaleFactor);
       if (isLandscape.checked) {
+        isLandscape.parentElement.style.color = "white";
+        isLandscape.parentElement.style.backgroundColor = "darkgreen";
         outputCanvas.width = paperSize.height;
         outputCanvas.height = paperSize.width;
         // set screen max size
         outputCanvas.style.maxWidth = `${paperSize.height / scaleFactor}px`;
         // outputCanvas.style.maxHeight = paperSize.width / scaleFactor;
       } else {
+        isLandscape.parentElement.style.color = "black";
+        isLandscape.parentElement.style.backgroundColor = "#eee";
         outputCanvas.width = paperSize.width;
         outputCanvas.height = paperSize.height;
         // set screen max size
@@ -358,7 +369,9 @@
       drawImageGrid();
     }
 
-
+    // set internally
+    let gap = 40; // Adjust gap as needed
+    const margin = gap / 2;
 
     // outputCanvas grid
     function drawImageGrid() {
@@ -396,6 +409,7 @@
         outputCanvasImageBlob = blob;
       }, originalImageMimeType); // Pass original image MIME type
     }
+
 
     function setBackgroundColor(event) {
       backgroundColor = event.target.value;
