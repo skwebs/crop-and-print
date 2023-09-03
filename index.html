@@ -148,10 +148,8 @@
     // Handle columns select change event
     colsSelect.addEventListener("change", updateGrid);
     reCropButton.addEventListener("click", function () {
-      cropButton.disabled = false;
-      cropImageWrapper.style.display = "block";
-      outputCanvas.style.display = "none";
-      this.disabled = true;
+
+      enableCropDisableCanvasTools(true);
     });
     // Handle download button click
     const downloadImageButton = _("#downloadImageButton");
@@ -175,8 +173,7 @@
           // console.log("image loaded");
           initCropper();
           cropImageWrapper.style.display = "block";
-          // enable cropButton
-          cropButton.disabled = false;
+          enableCropDisableCanvasTools(true);
         };
         imageForCrop.src = URL.createObjectURL(file);
       }
@@ -187,6 +184,9 @@
       if (cropper) {
         destroyCrooper();
       }
+
+      outputCanvas.style.display = "none";
+      reCropButton.disabled = true;
 
       cropper = new Cropper(imageForCrop, {
         viewMode: 3,
@@ -216,20 +216,20 @@
 
         if (croppedCanvas !== null) {
           // enable tools
-          diableTools(false);
+          enableCropDisableCanvasTools(false);
           drawImageGrid();
-          reCropButton.disabled = false;
-          cropButton.disabled = true;
-          cropImageWrapper.style.display = "none";
-          outputCanvas.style.display = "block";
         }
       }
     }
 
-    function diableTools(status) {
+    function enableCropDisableCanvasTools(statusTrue) {
       document
         .querySelectorAll("#canvasToolGroup>*")
-        .forEach((el) => (el.disabled = status));
+        .forEach((el) => (el.disabled = statusTrue));
+      cropButton.disabled = !statusTrue;
+      reCropButton.disabled = statusTrue;
+      cropImageWrapper.style.display = statusTrue ? "block" : "none";
+      outputCanvas.style.display = statusTrue ? "none" : "block";
     }
 
     // outputCanvas grid
