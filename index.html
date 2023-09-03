@@ -64,8 +64,6 @@
 
     #outputCanvas {
       width: 100%;
-      max-width: 830px;
-      background-color: white;
       box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.1);
       display: none;
     }
@@ -73,15 +71,10 @@
     input,
     button {
       margin-top: 10px;
-
     }
 
     input[type="range"] {
-      /* -webkit-appearance: none; */
-      /* appearance: none; */
-      /* background: transparent; */
       cursor: pointer;
-      /* width: 15rem; */
     }
   </style>
 </head>
@@ -103,6 +96,8 @@
         <option selected value="6">Six Cols</option>
         <option value="7">Seven Cols</option>
         <option value="8">Eight Cols</option>
+        <option value="9">Nine Cols</option>
+        <option value="10">Ten Cols</option>
       </select>
 
       <select name="rowsSelect" id="rowsSelect" disabled>
@@ -115,13 +110,20 @@
         <option value="6">Six Rows</option>
         <option value="7">Seven Rows</option>
         <option value="8">Eight Rows</option>
+        <option value="9">Nine Rows</option>
+        <option value="10">Ten Rows</option>
       </select>
 
-      <!-- <input type="color" id="backgroundColorSelect"> -->
       <input type="color" id="backgroundColorInput" disabled />
 
+      <select name="paperSelect" id="paperSelect" disabled>
+        <option value="A4" selected>A4</option>
+        <option value="_4x6">4x6</option>
+        <option value="_5x7">5x7</option>
+      </select>
+
       <div>
-        <label for="landscapeImage"><input type="checkbox" name="landscapeImage" id="landscapeImage">Landscape</label>
+        <label for="isLandscape"><input type="checkbox" name="isLandscape" id="isLandscape">Landscape</label>
 
         <span id="rotateDegree">Rotate: 0</span>
       </div>
@@ -162,47 +164,27 @@
 
   <script src="vendors/cropper/1.6.0/cropper.min.js"></script>
   <script type="text/javascript">
+
     "use strict";
+    // Crop Image Section
     const _ = (e) => document.querySelector(e);
     const cropButton = _("#cropButton");
     const imageForCrop = _("#imageForCrop");
-    const rowsSelect = _("#rowsSelect");
-    const colsSelect = _("#colsSelect");
     const reCropButton = _("#reCropButton");
     const cropImageWrapper = _("#cropImageWrapper");
     const outputCanvas = _("#outputCanvas");
     const imageRotateSlider = _("#imageRotateSlider");
-    _("#landscapeImage").addEventListener("click", changeCanvasOrientation);
-
 
     let originalImageMimeType = null;
     let isImageLoaded = false;
     let cropper = null;
-    let croppedImageUrl = null;
     let croppedCanvas = null;
 
     let targetImageWidth = 360;
     let targetImageHeight = 450;
 
-    let backgroundColor = "#008080"; // Default background color (white)
-
-    const paperSize = {
-      A4: { width: 2480, height: 3505 },
-      _4x6: { width: 1200, height: 1800 },
-      _5x7: { width: 1500, height: 2100 },
-    };
-    // set internally
-    const gap = 50; // Adjust gap as needed
-    const margin = gap / 2;
-
     // Handle image input change event
     _("#imageInput").addEventListener("change", handleImage);
-    // Handle background color input change event
-    _("#backgroundColorInput").addEventListener("input", setBackgroundColor);
-    // Handle rows select change event
-    rowsSelect.addEventListener("change", updateGrid);
-    // Handle columns select change event
-    colsSelect.addEventListener("change", updateGrid);
 
     reCropButton.addEventListener("click", function () {
       enableCropDisableCanvasTools(true);
@@ -216,14 +198,7 @@
       }
     });
 
-    // Handle download button click
-    const downloadImageButton = _("#downloadImageButton");
 
-    downloadImageButton.addEventListener("click", downloadCanvas);
-
-    // get from user
-    let numRows = parseInt(rowsSelect.value, 10) || 1; // Default number of rows
-    let numCols = parseInt(colsSelect.value, 10) || 6; // Default number of columns
 
     cropButton.addEventListener("click", cropImage);
 
@@ -302,23 +277,90 @@
       imageRotateSlider.disabled = !statusTrue;
     }
 
-    // outputCanvas grid
-    const ctx = outputCanvas.getContext("2d");
-    function changeCanvasOrientation(e) {
-      if (e.target.checked) {
-        outputCanvas.width = paperSize.A4.height; // Adjust outputCanvas size as needed
-        outputCanvas.height = paperSize.A4.width;
-      } else {
-        outputCanvas.width = paperSize.A4.width; // Adjust outputCanvas size as needed
-        outputCanvas.height = paperSize.A4.height;
-      };
-      drawImageGrid();
-    }
-    outputCanvas.width = paperSize.A4.width; // Adjust outputCanvas size as needed
-    outputCanvas.height = paperSize.A4.height;
+
+
+
+    // =========================== Grid Image Section =====================================================================
+    const rowsSelect = _("#rowsSelect");
+    const colsSelect = _("#colsSelect");
+    const isLandscape = _("#isLandscape");
+    isLandscape.addEventListener("click", changeCanvasOrientation);
+    const paperSelect = _("#paperSelect");
+    paperSelect.addEventListener("change", changePaperSize);
+
+    // Handle background color input change event
+    _("#backgroundColorInput").addEventListener("input", setBackgroundColor);
+    // Handle rows select change event
+    rowsSelect.addEventListener("change", updateGrid);
+    // Handle columns select change event
+    colsSelect.addEventListener("change", updateGrid);
+    // Handle download button click
+    const downloadImageButton = _("#downloadImageButton");
+
+    downloadImageButton.addEventListener("click", downloadCanvas);
+
+    let backgroundColor = "#008080"; // Default background color (white)
+    // get from user
+    let numRows = parseInt(rowsSelect.value, 10) || 1; // Default number of rows
+    let numCols = parseInt(colsSelect.value, 10) || 6; // Default number of columns
 
     let outputCanvasImageBlob = null;
 
+    // set internally
+    const gap = 50; // Adjust gap as needed
+    const margin = gap / 2;
+    const photoResolution = 300;
+    const screenResolution = 96;
+    const scaleFactor = photoResolution / 96;
+    let photoAspectRatio = 4 / 5;
+    const photoWidthInInch = 1.2;
+    const screenPhotoWidth = screenResolution * photoWidthInInch;
+    const screenPhotoHeight = photoResolution * photoWidthInInch * photoAspectRatio;
+    const targetPhotoWidth = screenResolution * photoWidthInInch;
+    const targetPhotoHeight = photoResolution * photoWidthInInch * photoAspectRatio;
+
+    const paperSizes = {
+      A4: { width: 2480, height: 3505 },
+      _4x6: { width: 1200, height: 1800 },
+      _5x7: { width: 1500, height: 2100 },
+    };
+    let paperSize = paperSizes["A4"];
+
+    function changePaperSize(e) {
+      paperSize = paperSizes[paperSelect.value];
+      console.log(paperSize);
+      changeCanvasOrientation();
+      drawImageGrid();
+    }
+
+    const ctx = outputCanvas.getContext("2d");
+    // default set canvas size
+    outputCanvas.width = paperSizes.A4.width;
+    outputCanvas.height = paperSizes.A4.height;
+    outputCanvas.style.maxWidth = `${paperSize.width / scaleFactor}px`;
+
+    function changeCanvasOrientation(e) {
+      console.log(scaleFactor);
+      console.log(paperSize.height / scaleFactor);
+      if (isLandscape.checked) {
+        outputCanvas.width = paperSize.height;
+        outputCanvas.height = paperSize.width;
+        // set screen max size
+        outputCanvas.style.maxWidth = `${paperSize.height / scaleFactor}px`;
+        // outputCanvas.style.maxHeight = paperSize.width / scaleFactor;
+      } else {
+        outputCanvas.width = paperSize.width;
+        outputCanvas.height = paperSize.height;
+        // set screen max size
+        outputCanvas.style.maxWidth = `${paperSize.width / scaleFactor}px`;
+        // outputCanvas.style.maxHeight = paperSize.height / scaleFactor;
+      };
+      drawImageGrid();
+    }
+
+
+
+    // outputCanvas grid
     function drawImageGrid() {
       if (isImageLoaded) {
         // set background colour white
