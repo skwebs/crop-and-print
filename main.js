@@ -10,6 +10,17 @@ document.addEventListener("DOMContentLoaded", function () {
     const cropImageWrapper = _("#cropImageWrapper");
     const outputCanvas = _("#outputCanvas");
     const imageRotateSlider = _("#imageRotateSlider");
+    const cropGroup = _("#cropGroup");
+    const canvasToolGroup = _("#canvasToolGroup");
+    const resetButton = _("#resetButton");
+
+    resetButton.addEventListener("click", function () {
+        if (cropper) {
+            cropper.reset();
+            imageRotateSlider.value = 0;
+            _("#rotateDegree").innerText = `Rotate: ${0}`;
+        }
+    })
 
     let originalImageMimeType = null;
     let isImageLoaded = false;
@@ -34,16 +45,27 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    let scaleValue = 1;
+    let flipX = 1;
     const flipHorizontallyButton = _("#flipHorizontallyButton");
     flipHorizontallyButton.addEventListener("click", function () {
-        scaleValue = scaleValue !== 1 ? 1 : -1;
+        flipX = flipX !== 1 ? 1 : -1;
 
         if (cropper) {
-            cropper.scaleX(scaleValue)
-            // console.log("cropper")
+            cropper.scaleX(flipX)
+            console.log("cropper")
         }
-    })
+    });
+
+    let flipY = 1;
+    const flipVerticallyButton = _("#flipVerticallyButton");
+    flipVerticallyButton.addEventListener("click", function () {
+        flipY = flipY !== 1 ? 1 : -1;
+
+        if (cropper) {
+            cropper.scaleY(flipY)
+            console.log("cropper")
+        }
+    });
 
     cropButton.addEventListener("click", cropImage);
 
@@ -112,16 +134,18 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     function enableCropDisableCanvasTools(statusTrue) {
-        document
-            .querySelectorAll("#canvasToolGroup>*")
-            .forEach((el) => (el.disabled = statusTrue));
-        cropButton.disabled = !statusTrue;
-        flipHorizontallyButton.disabled = !statusTrue
-        isLandscape.disabled = statusTrue
-        reCropButton.disabled = statusTrue;
+        // document
+        //     .querySelectorAll("#canvasToolGroup>*")
+        //     .forEach((el) => (el.disabled = statusTrue));
+        // cropButton.disabled = !statusTrue;
+        // flipHorizontallyButton.disabled = !statusTrue
+        // isLandscape.disabled = statusTrue
+        // reCropButton.disabled = statusTrue;
         cropImageWrapper.style.display = statusTrue ? "block" : "none";
+        cropGroup.style.display = statusTrue ? "block" : "none";
         outputCanvas.style.display = statusTrue ? "none" : "block";
-        imageRotateSlider.disabled = !statusTrue;
+        canvasToolGroup.style.display = statusTrue ? "none" : "block";
+        // imageRotateSlider.disabled = !statusTrue;
     }
 
 

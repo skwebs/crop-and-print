@@ -15,34 +15,47 @@
   <header>
     <!-- crop image -->
     <input type="file" name="imageInput" id="imageInput" accept="image/*" />
-    <button id="cropButton" disabled>Crop Image</button>
-    <button id="reCropButton" disabled>Re-Crop Image</button>
-    <button title="Flip Horizontally" id="flipHorizontallyButton" style="padding-left: 10px; padding-right: 10px;"
-      disabled>
-      <svg xmlns="http://www.w3.org/2000/svg" style="width: 24px;"
-        viewBox="0 0 512 512"><!--! Font Awesome Pro 6.4.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. -->
-        <path
-          d="M406.6 374.6l96-96c12.5-12.5 12.5-32.8 0-45.3l-96-96c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224l-293.5 0 41.4-41.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-96 96c-12.5 12.5-12.5 32.8 0 45.3l96 96c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 288l293.5 0-41.4 41.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0z" />
-      </svg>
-    </button>
-    <!-- slider -->
-    <div>
-      <input type="range" name="imageRotateSlider" id="imageRotateSlider" min="-45" max="45" value="0" step="0.001"
-        disabled>
-      <datalist id="values">
-        <option value="-45" label="-45"></option>
-        <option value="-30" label="-30"></option>
-        <option value="-15" label="-15"></option>
-        <option value="0" label="0"></option>
-        <option value="15" label="15"></option>
-        <option value="30" label="30"></option>
-        <option value="45" label="45"></option>
-      </datalist>
+    <div id="cropGroup">
+      <button id="cropButton">Crop Image</button>
+
+      <button title="Flip Horizontally" id="flipHorizontallyButton" style="align-items: center; padding:0 5px;">
+        <span>Flip</span> &nbsp;
+        <svg xmlns="http://www.w3.org/2000/svg" fill="#444" style="width: 20px;" viewBox="10 0 500 400">
+          <path
+            d="M406.6 374.6l96-96c12.5-12.5 12.5-32.8 0-45.3l-96-96c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224l-293.5 0 41.4-41.4c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-96 96c-12.5 12.5-12.5 32.8 0 45.3l96 96c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 288l293.5 0-41.4 41.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0z" />
+        </svg>
+      </button>
+      <button title="Flip Vertically" id="flipVerticallyButton" style="align-items: center; padding:0 5px;">
+        <span>Flip</span> &nbsp;
+        <svg style="height: 20px;" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
+          <path
+            d="M182.6 9.4c-12.5-12.5-32.8-12.5-45.3 0l-96 96c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L128 109.3V402.7L86.6 361.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3l96 96c12.5 12.5 32.8 12.5 45.3 0l96-96c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 402.7V109.3l41.4 41.4c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3l-96-96z" />
+        </svg>
+      </button>
+
+      <button id="resetButton">Reset All</button>
+
+      <span id="rotateDegree">Rotate: 0</span>
+      <!-- slider -->
+      <div>
+        <input type="range" name="imageRotateSlider" id="imageRotateSlider" min="-90" max="90" value="0" step="0.001">
+        <datalist id="values">
+          <option value="-45" label="-45"></option>
+          <option value="-30" label="-30"></option>
+          <option value="-15" label="-15"></option>
+          <option value="0" label="0"></option>
+          <option value="15" label="15"></option>
+          <option value="30" label="30"></option>
+          <option value="45" label="45"></option>
+        </datalist>
+      </div>
     </div>
+
     <!-- canvas grid -->
+
     <div id="canvasToolGroup">
-      <select name="colsSelect" id="colsSelect" disabled>
-        <option value="">Select col</option>
+      <button id="reCropButton">Re-Crop Image</button>
+      <select name="colsSelect" id="colsSelect">
         <option value="1">One Col</option>
         <option value="2">Two Cols</option>
         <option value="3">Three Cols</option>
@@ -55,8 +68,7 @@
         <option value="10">Ten Cols</option>
       </select>
 
-      <select name="rowsSelect" id="rowsSelect" disabled>
-        <option value="">Select Row</option>
+      <select name="rowsSelect" id="rowsSelect">
         <option selected value="1">One Row</option>
         <option value="2">Two Rows</option>
         <option value="3">Three Rows</option>
@@ -69,22 +81,18 @@
         <option value="10">Ten Rows</option>
       </select>
 
-      <input type="color" id="backgroundColorInput" disabled />
+      <input type="color" id="backgroundColorInput" />
 
-      <select name="paperSelect" id="paperSelect" disabled>
+      <select name="paperSelect" id="paperSelect">
         <option value="A4" selected>A4</option>
         <option value="_4x6">4x6</option>
         <option value="_5x7">5x7</option>
       </select>
 
-      <div>
-        <label style="border: thin solid gray; padding: 2px;" for="isLandscape"><input type="checkbox"
-            name="isLandscape" id="isLandscape" disabled>&nbsp;Landscape</label>
+      <label style="border: thin solid gray; padding: 2px;" for="isLandscape"><input type="checkbox" name="isLandscape"
+          id="isLandscape">&nbsp;Landscape</label>
 
-        <span id="rotateDegree">Rotate: 0</span>
-      </div>
-
-      <button id="downloadImageButton" disabled>Download Image</button>
+      <button id="downloadImageButton">Download Image</button>
     </div>
   </header>
 

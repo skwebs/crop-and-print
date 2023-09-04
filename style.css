@@ -64,3 +64,11 @@ button {
 input[type="range"] {
   cursor: pointer;
 }
+
+#cropGroup {
+  display: none;
+}
+
+#canvasToolGroup {
+  display: none;
+}
