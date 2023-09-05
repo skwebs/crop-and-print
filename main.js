@@ -1,9 +1,8 @@
 
 "use strict";
 document.addEventListener("DOMContentLoaded", function () {
-
-    // Crop Image Section
     const _ = (e) => document.querySelector(e);
+
     const cropButton = _("#cropButton");
     const imageForCrop = _("#imageForCrop");
     const reCropButton = _("#reCropButton");
@@ -12,13 +11,14 @@ document.addEventListener("DOMContentLoaded", function () {
     const imageRotateSlider = _("#imageRotateSlider");
     const cropGroup = _("#cropGroup");
     const canvasToolGroup = _("#canvasToolGroup");
-    const resetButton = _("#resetButton");
+    const resetAllButton = _("#resetAllButton");
+    const resetRotateButton = _("#resetRotateButton")
 
-    resetButton.addEventListener("click", function () {
+
+    resetAllButton.addEventListener("click", function () {
         if (cropper) {
             cropper.reset();
             imageRotateSlider.value = 0;
-            _("#rotateDegree").innerText = `: ${0}`;
         }
     })
 
@@ -41,8 +41,18 @@ document.addEventListener("DOMContentLoaded", function () {
         if (cropper) {
             const rotateAngle = e.target.value;
             cropper.rotateTo(rotateAngle);
-            _("#rotateDegree").innerText = `${rotateAngle}`;
         }
+    });
+
+    resetRotateButton.addEventListener("click", function (e) {
+        if (cropper) {
+            const rotateAngle = 0;
+            cropper.rotateTo(rotateAngle);
+            imageRotateSlider.value = 0;
+        }
+        console.log(this.disabled = true)
+        // const r = imageForCrop.getImageData();
+        // console.log(r)
     });
 
     let flipX = 1;
@@ -70,9 +80,14 @@ document.addEventListener("DOMContentLoaded", function () {
     cropButton.addEventListener("click", cropImage);
 
     // detect upload image
+    let imageUrl = null;
     function handleImage(event) {
         const file = event.target.files[0];
         if (file) {
+            if (imageUrl) {
+                URL.revokeObjectURL(imageUrl);
+                imageUrl = null;
+            }
             originalImageMimeType = file.type;
             // image onload
             imageForCrop.onload = function () {
@@ -83,7 +98,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 enableCropDisableCanvasTools(true);
                 // console.log("imageForCrop.onload")
             };
-            imageForCrop.src = URL.createObjectURL(file);
+            imageUrl = URL.createObjectURL(file)
+            imageForCrop.src = imageUrl;
         }
     }
 
@@ -108,7 +124,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 cropImageWrapper.style.visibility = "visible";
             },
             crop(event) {
-                // console.log(event.detail.rotate);
+                if (event.detail.rotate != 0) {
+                    resetRotateButton.disabled = false
+                }
+
             },
         });
     }

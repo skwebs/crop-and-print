@@ -9,17 +9,15 @@
   <link rel="stylesheet" href="vendors/cropper/1.6.0/cropper.min.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link
-    href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;1,300;1,400;1,500&display=swap"
-    rel="stylesheet">
   <link rel="shortcut icon" href="favicon.png" type="image/x-icon" />
   <link rel="stylesheet" href="style.css">
+
+
 </head>
 
 <body>
   <header>
-
-    <h1>Crop and create image</h1>
+    <h2>Crop and create image</h2>
   </header>
 
   <main>
@@ -32,12 +30,11 @@
     <br />
 
     <div id="cropGroup">
-      <button id="cropButton" style="padding:3px 5px 1px;">
+      <button title="Crop Image" id="cropButton" style="padding:3px 5px 1px;">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 500" style="width: 20px;">
           <path
             d="M448 109.3l54.6-54.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L402.7 64 160 64v64l178.7 0L128 338.7V32c0-17.7-14.3-32-32-32S64 14.3 64 32V64H32C14.3 64 0 78.3 0 96s14.3 32 32 32H64V384c0 35.3 28.7 64 64 64H352V384H173.3L384 173.3 384 480c0 17.7 14.3 32 32 32s32-14.3 32-32V448h32c17.7 0 32-14.3 32-32s-14.3-32-32-32H448l0-274.7z" />
         </svg>
-
       </button>
 
       <button title="Flip Horizontally" id="flipHorizontallyButton" style="align-items: center; padding:0px 5px 1px;">
@@ -53,16 +50,13 @@
         </svg>
       </button>
 
-      <button id="resetButton">Reset All</button>
+      <button id="resetAllButton">Reset All</button>
+
+      <button style="padding:2px;" id="resetRotateButton" disabled>
+        Reset Rotate
+      </button>
 
 
-      <span>
-        <svg width="24" height="22" viewBox="0 0 24 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M11.3021 2.8833L2.90295 18.5447L20.7867 18.6683" stroke="black" stroke-width="3"
-            stroke-linecap="round" stroke-linejoin="round" />
-        </svg>:
-        <span id="rotateDegree"> 0</span>
-      </span>
       <!-- slider -->
       <div>
         <input type="range" name="imageRotateSlider" id="imageRotateSlider" min="-90" max="90" value="0" step="0.001">
