@@ -18,7 +18,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (cropper) {
             cropper.reset();
             imageRotateSlider.value = 0;
-            _("#rotateDegree").innerText = `Rotate: ${0}`;
+            _("#rotateDegree").innerText = `: ${0}`;
         }
     })
 
@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", function () {
         if (cropper) {
             const rotateAngle = e.target.value;
             cropper.rotateTo(rotateAngle);
-            _("#rotateDegree").innerText = `Rotate: ${rotateAngle}`;
+            _("#rotateDegree").innerText = `${rotateAngle}`;
         }
     });
 

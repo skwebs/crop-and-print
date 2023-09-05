@@ -2,6 +2,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-family: "Roboto", sans-serif;
 }
 
 body {
@@ -65,10 +66,7 @@ input[type="range"] {
   cursor: pointer;
 }
 
-#cropGroup {
-  display: none;
-}
-
+#cropGroup,
 #canvasToolGroup {
   display: none;
 }
