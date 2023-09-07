@@ -1,6 +1,6 @@
 {
-  "name": "Crop &amp; Create Passport Size Photo",
-  "short_name": "Crop &amp; Create",
+  "name": "Crop & Create Passport Size Photo",
+  "short_name": "Crop & Create",
   "start_url": "/",
   "description": "Upload and create passport size photo album.",
   "display": "standalone",
