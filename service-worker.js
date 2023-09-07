@@ -1,8 +1,8 @@
 const cacheName = 'my-pwa-cache-v1';
 const cacheUrls = [
-    '/',
-    '/index.html',
-    '/manifest.json',
+    './',
+    './index.html',
+    './manifest.json',
     "./vendors/cropper/1.6.0/cropper.min.css",
     "./vendors/cropper/1.6.0/cropper.min.js",
     "./style.css",
